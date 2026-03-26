@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Archives
+files.zip
+
+# Large raw data (re-downloadable)
+files/data/raw/ausgrid_substation_load/
+files/data/raw/nsw_spatial/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.egg-info/
+.env
+venv/

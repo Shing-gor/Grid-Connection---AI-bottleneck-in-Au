@@ -1,0 +1,588 @@
+
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Page not found</title>
+    <meta name="description" content="Ausgrid - page not found">
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
+    <meta property="og:url" content="https://www.ausgrid.com.au:443/page-not-found">
+    <meta property="og:title" content="Page not found">
+    <meta property="og:description" content="Ausgrid - page not found">
+        <meta name="robots" content="noindex" />
+    <link href="/assets/images/favicon/Ausgrid_MobIcon_60.png" rel="apple-touch-icon" />
+    <link href="/assets/images/favicon/Ausgrid_MobIcon_76.png" rel="apple-touch-icon" sizes="76x76" />
+    <link href="/assets/images/favicon/Ausgrid_MobIcon_120.png" rel="apple-touch-icon" sizes="120x120" />
+    <link href="/assets/images/favicon/Ausgrid_MobIcon_152.png" rel="apple-touch-icon" sizes="152x152" />
+
+
+        <!-- Google Tag Manager -->
+<script>
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+                ga('create', 'UA-12538597-1', 'auto');
+                ga('send', 'pageview');
+            </script><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': 
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], 
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); 
+            })(window,document,'script','dataLayer','GTM-NQ252J');</script><script type="text/javascript"  src="https://unpkg.com/@elastic/apm-rum@5.17.0/dist/bundles/elastic-apm-rum.umd.min.js"></script>
+<script>
+
+  var apm =  elasticApm.init({
+
+    serviceName: 'Ausgrid',
+    serverUrl: 'https://cla-apm-prod.ausgrid.com.au',
+    serviceVersion: '1.0',
+    environment: 'prod'
+
+  });
+
+//Util
+  function genId() {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+
+  function getCookie(name) {
+    var escaped = name.replace(/([.*+?^$(){}|[\]\\])/g, '\\$1');
+    var m = document.cookie.match(new RegExp('(?:^|; )' + escaped + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function setCookieKV(name, value, maxAgeSeconds) {
+    var cookie = name + "=" + encodeURIComponent(value)
+               + "; Max-Age=" + maxAgeSeconds
+               + "; Path=/"
+               + "; SameSite=Lax";
+    if (location.protocol === "https:") cookie += "; Secure";
+    document.cookie = cookie;
+  }
+
+  function rotateSession(nowMs) {
+    sessionId = genId();
+    setCookieKV(COOKIE_NAME, sessionId, MAX_AGE);
+    setCookieKV(COOKIE_TS, String(nowMs), MAX_AGE);
+    
+    if (typeof apm !== "undefined" && apm.addLabels) {
+      apm.addLabels({ tracking_id: sessionId });
+      if (typeof browser_type !== "undefined") apm.addLabels({"browser_type": browser_type});
+    }
+  }
+
+  function refreshSession(nowMs) {
+    setCookieKV(COOKIE_NAME, sessionId, MAX_AGE);
+    setCookieKV(COOKIE_TS, String(nowMs), MAX_AGE);
+  }
+
+  function onActivity() {
+    var now = Date.now();
+    if (now - lastCookieRefresh < REFRESH_COOLDOWN_MS) return;
+
+    var tsStr = getCookie(COOKIE_TS);
+    var ts = tsStr ? parseInt(tsStr, 10) : 0;
+    if (!ts || (now - ts) > (MAX_AGE * 1000)) {
+      rotateSession(now);
+    } else {
+      refreshSession(now);
+    }
+    lastCookieRefresh = now;
+  }
+
+  //Actual capturing
+  var COOKIE_NAME = "esSessionId";
+  var COOKIE_TS   = "esSessionTs"; 
+  var IDLE_MINUTES = 35;
+  var MAX_AGE = IDLE_MINUTES * 60;
+  var REFRESH_COOLDOWN_MS = 30000;
+
+  var sessionId = getCookie(COOKIE_NAME);
+  var lastTsStr = getCookie(COOKIE_TS);
+  var lastTs = lastTsStr ? parseInt(lastTsStr, 10) : 0;
+  var lastCookieRefresh = 0;
+  
+  var title = document.title;
+  var browser_type = (navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean")
+    ? (navigator.userAgentData.mobile ? "Mobile" : "Desktop")
+    : ( /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop" );
+
+  if (typeof apm !== "undefined" && apm.addLabels) {
+    apm.addLabels({ page_title: title });
+
+    (function bootstrap() {
+      var now = Date.now();
+      if (!sessionId) {
+        rotateSession(now);
+      } else if (!lastTs || (now - lastTs) > (MAX_AGE * 1000)) {
+        rotateSession(now);
+      } else {
+        refreshSession(now);
+      }
+      
+      apm.addLabels({ tracking_id: sessionId });
+    })();
+
+    window.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") onActivity();
+    }, { passive: true, capture: true });
+    window.addEventListener("pageshow", onActivity, { passive: true, capture: true });
+  
+    //Get address if power outages
+    window.addEventListener("load", (event) => {
+      if (typeof title !== "undefined" && title == "Power outages - Ausgrid" && typeof apm !== "undefined" ) {
+        var address = document.querySelector("div.cnrMap__inputSearchAddr-inner > input.form__input.form__input-text");
+        if (address !== null) {
+          var tranx = apm.getCurrentTransaction();
+          tranx.addLabels({"reported_address": address.value});
+        }
+      }
+    });
+
+    ["click", "touchstart"].forEach(evtType => {
+      document.addEventListener(evtType, function (event) {
+        onActivity();
+        let el = event.target.closest('a, button, div, span, input, select'); 
+  
+        if (!el && event.composedPath) {
+          const path = event.composedPath();
+          el = path.find(node => node && (node.tagName === 'A' || node.tagName === 'BUTTON' || node.tagName === 'DIV' || node.tagName === 'SPAN' || node.tagName === 'INPUT' || node.tagName === 'SELECT'));
+        }
+  
+        if (!el) return;
+  
+        const info = {
+          el_tag: el.tagName,
+          el_class: el.className,
+          el_href: el.tagName === 'A' ? el.getAttribute('href') : null,
+          el_resolvedHref: el.tagName === 'A' ? el.href : null,
+          el_text: ("value" in el && el.value && el.value.trim() !== "") ? el.value.trim() : el.innerText.trim(),
+          el_id: el.id,
+          evt_page: window.location.pathname
+        };
+        
+        
+        var tranx = apm.getCurrentTransaction();
+        if(tranx != null) {
+          if (typeof browser_type !== "undefined") apm.addLabels({"browser_type": browser_type});
+          tranx.addLabels({"element_text": info.el_text, "element_id": info.el_id, "page": info.evt_page});
+          if (info.el_class.includes("cnrMap__SearchAddr-populatedresults")) {
+            tranx.addLabels({"reported_address": info.el_text});
+          }
+          tranx.name = tranx.name + " '" + info.el_text + "' on page " + info.evt_page;
+        }
+      }, true);
+    });
+  }
+</script>
+
+    <link href="https://www.ausgrid.com.au/page-not-found" rel="canonical" />
+    
+    <link href="/assets/css/main.css?v=639057227780000000" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    
+    <script src="/assets/js/libs/paginator.js?v=639057227780000000"></script>
+
+    <!--BEGIN QUALTRICS WEBSITE FEEDBACK SNIPPET-->
+    <script type='text/javascript'>
+        (function () {
+            var g = function (e, h, f, g) {
+                this.get = function (a) { for (var a = a + "=", c = document.cookie.split(";"), b = 0, e = c.length; b < e; b++) { for (var d = c[b]; " " == d.charAt(0);)d = d.substring(1, d.length); if (0 == d.indexOf(a)) return d.substring(a.length, d.length) } return null };
+                this.set = function (a, c) { var b = "", b = new Date; b.setTime(b.getTime() + 6048E5); b = "; expires=" + b.toGMTString(); document.cookie = a + "=" + c + b + "; path=/; " };
+                this.check = function () { var a = this.get(f); if (a) a = a.split(":"); else if (100 != e) "v" == h && (e = Math.random() >= e / 100 ? 0 : 100), a = [h, e, 0], this.set(f, a.join(":")); else return !0; var c = a[1]; if (100 == c) return !0; switch (a[0]) { case "v": return !1; case "r": return c = a[2] % Math.floor(100 / c), a[2]++, this.set(f, a.join(":")), !c }return !0 };
+                this.go = function () { if (this.check()) { var a = document.createElement("script"); a.type = "text/javascript"; a.src = g; document.body && document.body.appendChild(a) } };
+                this.start = function () { var t = this; "complete" !== document.readyState ? window.addEventListener ? window.addEventListener("load", function () { t.go() }, !1) : window.attachEvent && window.attachEvent("onload", function () { t.go() }) : t.go() };
+            };
+            try { (new g(100, "r", "QSI_S_ZN_9pFRxqDdjxXobDD", "https://zn9pfrxqddjxxobdd-ausgrid.siteintercept.qualtrics.com/SIE/?Q_ZID=ZN_9pFRxqDdjxXobDD")).start() } catch (i) { }
+        })();
+    </script>
+    <div id='ZN_9pFRxqDdjxXobDD'><!--DO NOT REMOVE-CONTENTS PLACED HERE--></div>
+    <!--END WEBSITE FEEDBACK SNIPPET-->
+</head>
+
+<body class="body">
+    
+    
+    <div class="site-container">
+        
+
+
+<nav class="mainMenu grid-container full show-for-large" data-id="C01">
+    <div class="grid-container">
+        <div class="grid-x">
+            <div class="mainMenu__nav cell auto">
+                <div class="grid-x">
+                        <a class="mainMenu__link cell shrink " href="/" title="Home">Home</a>
+                        <a class="mainMenu__link cell shrink " href="/About-Us" title="About us">About us</a>
+                        <a class="mainMenu__link cell shrink " href="/ASPs-and-Contractors" title="ASPs and contractors">ASPs and contractors</a>
+                        <a class="mainMenu__link cell shrink " href="/Industry" title="Industry">Industry</a>
+                        <a class="mainMenu__link cell shrink " href="/Councils" title="Councils">Councils</a>
+                </div>
+            </div>
+                <div class="mainMenu__sharing cell shrink">
+                    <div class="grid-x height-100 margin-right-1">
+                        <div class="sign-in" data-id="C961">
+                                <button class="button info small margin-0" type="button" data-toggle="foundation-dropdown-73958d4d-a6ab-481f-a78a-e5dc6c804225">
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="sign-in__icon">
+                                        <path d="M6 6C6.79565 6 7.55871 5.68393 8.12132 5.12132C8.68393 4.55871 9 3.79565 9 3C9 2.20435 8.68393 1.44129 8.12132 0.87868C7.55871 0.316071 6.79565 0 6 0C5.20435 0 4.44129 0.316071 3.87868 0.87868C3.31607 1.44129 3 2.20435 3 3C3 3.79565 3.31607 4.55871 3.87868 5.12132C4.44129 5.68393 5.20435 6 6 6ZM8 3C8 3.53043 7.78929 4.03914 7.41421 4.41421C7.03914 4.78929 6.53043 5 6 5C5.46957 5 4.96086 4.78929 4.58579 4.41421C4.21071 4.03914 4 3.53043 4 3C4 2.46957 4.21071 1.96086 4.58579 1.58579C4.96086 1.21071 5.46957 1 6 1C6.53043 1 7.03914 1.21071 7.41421 1.58579C7.78929 1.96086 8 2.46957 8 3ZM12 11C12 12 11 12 11 12H1C1 12 0 12 0 11C0 10 1 7 6 7C11 7 12 10 12 11ZM11 10.996C10.999 10.75 10.846 10.01 10.168 9.332C9.516 8.68 8.289 8 6 8C3.71 8 2.484 8.68 1.832 9.332C1.154 10.01 1.002 10.75 1 10.996H11Z" fill="currentColor" />
+                                    </svg>
+                                        <span>Sign in</span>
+                                </button>
+                                <div class="dropdown-pane large foundation-dropdown" id="foundation-dropdown-73958d4d-a6ab-481f-a78a-e5dc6c804225" data-dropdown data-position="bottom" data-alignment="right" data-close-on-click="true" data-prevent-menu-open="true" data-id="C961">
+                                    <div class="sign-in__links">
+                                        <section class="additionalNavigationModule promoCard cell full grid-container margin-bottom-0" data-id="C32">
+                                            <div class="promoCard__topCont">
+                                                <div class="additionalNavigationModule__list">
+                                                        <div class="additionalNavigationModule__header cardLinksAndBlocks__linksListTitle" style="padding-top:1.2em;padding-left:1.25em !important">
+                                                            <h3>Sign in</h3>
+                                                        </div>
+                                                        <div class="additionalNavigationModule__accent"></div>
+
+                                                            <a href="https://services.ausgrid.com.au/SignIn" class="additionalMenu grid-x cardLinksAndBlocks__rollOver" style="padding-top: 10px; padding-bottom: 10px;">
+                                                                <span class="additionalMenu__details cell small-12 grid-x">
+                                                                    <span class="additionalMenu__title auto cell">
+                                                                        <span class="additionalMenu__titleText cardLinksAndBlocks__linksText">Customer Portal</span>
+                                                                    </span>
+                                                                    <span class="additionalMenu__cta shrink cell cardLinksAndBlocks__linksCell">
+                                                                        <span class="additionalMenu__ctaIcon">
+                                                                            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                                                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                                                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+                                                                            </svg>
+                                                                        </span>
+                                                                    </span>
+                                                                </span>
+                                                            </a>
+                                                            <a href="https://www.ausgrid.com.au/About-Us/Debt-Investors" class="additionalMenu grid-x cardLinksAndBlocks__rollOver" style="padding-top: 10px; padding-bottom: 10px;">
+                                                                <span class="additionalMenu__details cell small-12 grid-x">
+                                                                    <span class="additionalMenu__title auto cell">
+                                                                        <span class="additionalMenu__titleText cardLinksAndBlocks__linksText">Debt Investor Portal</span>
+                                                                    </span>
+                                                                    <span class="additionalMenu__cta shrink cell cardLinksAndBlocks__linksCell">
+                                                                        <span class="additionalMenu__ctaIcon">
+                                                                            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                                                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                                                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+                                                                            </svg>
+                                                                        </span>
+                                                                    </span>
+                                                                </span>
+                                                            </a>
+                                                            <a href="/Contact-Us/How-to-register" class="additionalMenu grid-x cardLinksAndBlocks__rollOver" style="padding-top: 10px; padding-bottom: 10px;">
+                                                                <span class="additionalMenu__details cell small-12 grid-x">
+                                                                    <span class="additionalMenu__title auto cell">
+                                                                        <span class="additionalMenu__titleText cardLinksAndBlocks__linksText">Customer Portal Help</span>
+                                                                    </span>
+                                                                    <span class="additionalMenu__cta shrink cell cardLinksAndBlocks__linksCell">
+                                                                        <span class="additionalMenu__ctaIcon">
+                                                                            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                                                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                                                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+                                                                            </svg>
+                                                                        </span>
+                                                                    </span>
+                                                                </span>
+                                                            </a>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                            <div class="mainMenu__search cell shrink">
+                    <input type="text" placeholder="search" class="mainMenu__input" @keydown="performSearch" v-model="searchitem">
+                    <div class="mainMenu__searchIcon" v-on:click="performSearchClick">
+                        <div class="icon-magnifier"></div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</nav>
+
+<header class="mobileHeader grid-container full hide-for-large" data-id="C01M" v-cloak>
+    <div class="mobileHeader__container grid-x grid-padding-x">
+            <a href="/" class="mobileHeader__logo auto cell">
+                <img src="/-/media/Images/Logos/logo.svg?rev=4457e99bd890428f81ba7feae19c2bff&amp;la=en" class="mobileHeader__logoImage cell" alt="Ausgrid" />
+            </a>
+
+        <button class="mobileHeader__search cell shrink" v-on:click="searchToggle">
+            <div v-if="!searchActive" class="icon-magnifier"></div>
+            <svg v-if="searchActive" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </button>
+        <div class="mobileHeader__divider cell shrink"></div>
+        <button class="mobileHeader__menuCta cell shrink">
+            <svg class="svg-menu" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+            </svg>
+            <svg class="svg-close" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </button>
+
+        <transition name="fade">
+            <div v-if="searchActive"
+                 class="mobileHeader__searchInput cell small-12" v-cloak>
+                <input @keyup.enter="performSearch"
+                       v-model="searchTerm"
+                       ref='search'
+                       type="text"
+                       placeholder="search"
+                       class="mobileHeader__input"
+                       enterkeyhint="Go" />
+            </div>
+        </transition>
+    </div>
+</header>
+
+<nav class="mobileMenu grid-container full" data-state="hidden" data-id="C02C">
+        <div class="mobileMenu__navItems grid-x">
+            <div class="sign-in sign-in--mobile" data-id="C961">
+                    <button class="button info small margin-0" type="button" data-toggle="foundation-dropdown-mobile-73958d4d-a6ab-481f-a78a-e5dc6c804225">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="sign-in__icon">
+                            <path d="M6 6C6.79565 6 7.55871 5.68393 8.12132 5.12132C8.68393 4.55871 9 3.79565 9 3C9 2.20435 8.68393 1.44129 8.12132 0.87868C7.55871 0.316071 6.79565 0 6 0C5.20435 0 4.44129 0.316071 3.87868 0.87868C3.31607 1.44129 3 2.20435 3 3C3 3.79565 3.31607 4.55871 3.87868 5.12132C4.44129 5.68393 5.20435 6 6 6ZM8 3C8 3.53043 7.78929 4.03914 7.41421 4.41421C7.03914 4.78929 6.53043 5 6 5C5.46957 5 4.96086 4.78929 4.58579 4.41421C4.21071 4.03914 4 3.53043 4 3C4 2.46957 4.21071 1.96086 4.58579 1.58579C4.96086 1.21071 5.46957 1 6 1C6.53043 1 7.03914 1.21071 7.41421 1.58579C7.78929 1.96086 8 2.46957 8 3ZM12 11C12 12 11 12 11 12H1C1 12 0 12 0 11C0 10 1 7 6 7C11 7 12 10 12 11ZM11 10.996C10.999 10.75 10.846 10.01 10.168 9.332C9.516 8.68 8.289 8 6 8C3.71 8 2.484 8.68 1.832 9.332C1.154 10.01 1.002 10.75 1 10.996H11Z" fill="currentColor" />
+                        </svg>
+                            <span>Sign in</span>
+                    </button>
+                    <div class="dropdown-pane large foundation-dropdown" id="foundation-dropdown-mobile-73958d4d-a6ab-481f-a78a-e5dc6c804225" data-dropdown data-position="bottom" data-alignment="right" data-parent-class="sign-in--mobile" data-close-on-click="true" data-dynamic-mobile-width="true" data-id="C961">
+                        <div class="sign-in__links">
+                            <section class="additionalNavigationModule promoCard cell full grid-container margin-bottom-0" data-id="C32">
+                                <div class="promoCard__topCont">
+                                    <div class="additionalNavigationModule__list">
+                                            <div class="additionalNavigationModule__header cardLinksAndBlocks__linksListTitle" style="padding-top:1.2em;padding-left:1.25em !important">
+                                                <h3>Sign in</h3>
+                                            </div>
+                                            <div class="additionalNavigationModule__accent"></div>
+
+                                                <a href="https://services.ausgrid.com.au/SignIn" class="additionalMenu grid-x cardLinksAndBlocks__rollOver" style="padding-top: 10px; padding-bottom: 10px;">
+                                                    <span class="additionalMenu__details cell small-12 grid-x">
+                                                        <span class="additionalMenu__title auto cell">
+                                                            <span class="additionalMenu__titleText cardLinksAndBlocks__linksText">Customer Portal</span>
+                                                        </span>
+                                                        <span class="additionalMenu__cta shrink cell cardLinksAndBlocks__linksCell">
+                                                            <span class="additionalMenu__ctaIcon">
+                                                                <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M0 0h24v24H0z" fill="none"></path>
+                                                                    <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    </span>
+                                                </a>
+                                                <a href="https://www.ausgrid.com.au/About-Us/Debt-Investors" class="additionalMenu grid-x cardLinksAndBlocks__rollOver" style="padding-top: 10px; padding-bottom: 10px;">
+                                                    <span class="additionalMenu__details cell small-12 grid-x">
+                                                        <span class="additionalMenu__title auto cell">
+                                                            <span class="additionalMenu__titleText cardLinksAndBlocks__linksText">Debt Investor Portal</span>
+                                                        </span>
+                                                        <span class="additionalMenu__cta shrink cell cardLinksAndBlocks__linksCell">
+                                                            <span class="additionalMenu__ctaIcon">
+                                                                <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M0 0h24v24H0z" fill="none"></path>
+                                                                    <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    </span>
+                                                </a>
+                                                <a href="/Contact-Us/How-to-register" class="additionalMenu grid-x cardLinksAndBlocks__rollOver" style="padding-top: 10px; padding-bottom: 10px;">
+                                                    <span class="additionalMenu__details cell small-12 grid-x">
+                                                        <span class="additionalMenu__title auto cell">
+                                                            <span class="additionalMenu__titleText cardLinksAndBlocks__linksText">Customer Portal Help</span>
+                                                        </span>
+                                                        <span class="additionalMenu__cta shrink cell cardLinksAndBlocks__linksCell">
+                                                            <span class="additionalMenu__ctaIcon">
+                                                                <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M0 0h24v24H0z" fill="none"></path>
+                                                                    <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    </span>
+                                                </a>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+    <div class="mobileMenu__navItems grid-x">
+            <div class="mobileMenu__item cell full grid-x">
+                <div class="mobileMenu__linkContainer cell full grid-x">
+                    <!--First level links-->
+                    <a href="/" class="mobileMenu__link cell auto">Home</a>
+                </div>
+
+            </div>
+            <div class="mobileMenu__item cell full grid-x">
+                <div class="mobileMenu__linkContainer cell full grid-x">
+                    <!--First level links-->
+                    <a href="/About-Us" class="mobileMenu__link cell auto">About us</a>
+                </div>
+
+            </div>
+            <div class="mobileMenu__item cell full grid-x">
+                <div class="mobileMenu__linkContainer cell full grid-x">
+                    <!--First level links-->
+                    <a href="/ASPs-and-Contractors" class="mobileMenu__link cell auto">ASPs and contractors</a>
+                </div>
+
+            </div>
+            <div class="mobileMenu__item cell full grid-x">
+                <div class="mobileMenu__linkContainer cell full grid-x">
+                    <!--First level links-->
+                    <a href="/Industry" class="mobileMenu__link cell auto">Industry</a>
+                </div>
+
+            </div>
+            <div class="mobileMenu__item cell full grid-x">
+                <div class="mobileMenu__linkContainer cell full grid-x">
+                    <!--First level links-->
+                    <a href="/Councils" class="mobileMenu__link cell auto">Councils</a>
+                </div>
+
+            </div>
+    </div>
+
+</nav>
+
+
+
+<nav class="secondaryMenu grid-container full show-for-large" data-id="C02">
+    <div class="grid-container">
+        <div class="grid-x">
+
+
+                <a href="/" class="secondaryMenu__logo cell shrink grid-x">
+                    <img src="/-/media/Images/Logos/logo.svg?rev=4457e99bd890428f81ba7feae19c2bff&amp;la=en&amp;h=56&amp;w=200&amp;hash=608FBB356EEBCED8F46285CCA786952F" height="56" class="secondaryMenu__logoImage cell" alt="Ausgrid" width="200" />
+                </a>
+
+            <div class="secondaryMenu__nav cell auto">
+                <div class="secondaryMenu__links container grid-x">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="secondaryMenu__accent"></div>
+</nav>
+
+<div class="tertiaryMenu__wrapper show-for-large" data-id="C02B">
+   
+</div>
+
+        <div class="fourOFourPage">
+    <div class="grid-container">
+        <div class="grid-x grid-margin-x">
+            <div class="small-12 cell">
+                <h1 class="fourOFourPage__header">
+                    Uh oh, you’ve gone off the grid!
+                </h1>
+                <h1 class="fourOFourPage__message">
+                    The page you were looking for can't be found.
+                </h1>
+                <a href="/" class="button primary fourOFourPage__button" id="" data-automation="-">
+                    Back to home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+        
+
+<footer class="footer grid-container full" data-id="C07">
+    <div class="grid-container">
+        <div class="grid-x">
+            <div class="small-6 medium-8 cell icon footer__container">
+
+                <a href="/" class="footer__logo" aria-label="Precinct">
+                    <img src="/-/media/Images/Logos/logo-positive.svg?rev=c3146e1cdad24f6a9e76ea91be3e8bd1&amp;la=en&amp;h=60&amp;w=130&amp;hash=7A17147FF4DDC0DC6637616F60FD04DE" height="60" class="footer__logoImage cell" alt="Ausgrid" width="130" />
+                </a>
+                        <p class="footer__strap-line">We acknowledge the traditional owners of this land and pay respect to Elders, past, present and emerging.</p>
+
+            </div>
+            <div class="small-6 medium-4 cell">
+                <div class="footer__sharing cell grid-x">
+
+<a href="https://www.facebook.com/Ausgrid/" class="footer__sharingLink" target="_blank" rel="noopener noreferrer" >                                <div class="socialicon-colour-facebook"></div>
+</a><a href="https://twitter.com/ausgrid" class="footer__sharingLink" target="_blank" rel="noopener noreferrer" >                                <div class="socialicon-colour-twitter"></div>
+</a><a href="https://www.youtube.com/user/AusgridTV" class="footer__sharingLink" target="_blank" rel="noopener noreferrer" >                                <div class="socialicon-colour-youtube"></div>
+</a><a href="https://au.linkedin.com/company/ausgrid" class="footer__sharingLink" target="_blank" rel="noopener noreferrer" >                                <div class="socialicon-colour-linkedin"></div>
+</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer__accent"></div>
+
+        <div class="grid-x">
+            <div class="small-12 xlarge-4 cell">
+                    <p class="footer__font">Power outage, hazard or emergency</p>
+                    <a class="footer__tel" href="tel:13 13 88">13 13 88</a>
+                <p class="footer__text">24 hours a day, 7 days a week</p>
+            </div>
+            <div class="small-12 xlarge-4 cell">
+                    <p class="footer__font">General Enquiries</p>
+                    <a class="footer__tel" href="tel:13 13 65">13 13 65</a>
+                <p class="footer__text">Mon to Fri / 09:00 to 16:30</p>
+            </div>
+            <div class="small-12 xlarge-4 cell">
+                    <h4></h4>
+
+                <p class="footer__text">
+                    If you have any questions, comments or need further information, we'd be happy to hear from you.
+                </p><p>
+
+
+                        <button type="button" class="button info small" id="" onclick="location.href = '/Contact-Us';">
+                            Contact Us
+                        </button>
+
+                </p>
+            </div>
+            <div class="small-12 xlarge-12 cell copyright ">
+                <p class="footer__text">© Copyright Ausgrid 2023</p>
+                            <a href="/Contact-Us/Ausgrid-Vulnerability-Disclosure-Program" class="footer__bottomLink shrink">Ausgrid Vulnerability Disclosure Program</a>
+|                            <a href="/Ausgrid-Privacy-Policy" class="footer__bottomLink shrink">Privacy Policy</a>
+|                            <a href="/About-Us/Disclaimer" class="footer__bottomLink shrink">Disclaimer</a>
+|                            <a href="/Sitemap" class="footer__bottomLink shrink">Sitemap</a>
+
+
+            </div>
+        </div>
+
+    </div>
+</footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="/assets/js/vendor.bundle.js?v=639057227780000000"></script>
+    <script src="/assets/js/ausgrid.bundle.js?v=639057227780000000"></script>
+    <script src="/assets/js/libs.bundle.js?v=639057227780000000"></script>
+
+    
+
+    
+    
+</body>
+</html>
